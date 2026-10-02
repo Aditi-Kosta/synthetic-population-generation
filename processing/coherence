@@ -1,0 +1,88 @@
+# Run from: D:\mumbai_synth_v2\processing
+# Usage:    python check_cdr_coherence.py
+
+import pandas as pd
+import numpy as np
+from math import radians, sin, cos, sqrt, asin
+
+CDR_PATH = "../data/raw/cdr/mumbai_cdr.parquet"
+USERS_PATH = "../data/raw/cdr/users.parquet"
+
+def hav(lat1, lon1, lat2, lon2):
+    R = 6371
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    a = sin((lat2-lat1)/2)**2 + cos(lat1)*cos(lat2)*sin((lon2-lon1)/2)**2
+    return R * 2 * asin(sqrt(a))
+
+print("Loading CDR...")
+cdr = pd.read_parquet(CDR_PATH)
+users = pd.read_parquet(USERS_PATH)
+print(f"Loaded {len(cdr):,} rows, {cdr['user_id'].nunique():,} users\n")
+
+# Classify each ping's phase using the same logic as generate_cdr.py
+cdr["hour_val"] = pd.to_datetime(cdr["timestamp"]).dt.hour + \
+                  pd.to_datetime(cdr["timestamp"]).dt.minute / 60.0
+
+# Merge home/work coords onto CDR for phase classification
+cdr = cdr.merge(
+    users[["user_id","home_lat","home_lon","work_lat","work_lon",
+           "home_ward","work_ward"]],
+    on="user_id", how="left"
+)
+
+# Rough phase labels (approximate — commute window 7-10 and 17-21)
+def label_phase(h):
+    if 0 <= h < 7 or h >= 21:
+        return "home_night"
+    elif 7 <= h < 10:
+        return "morning_commute"
+    elif 10 <= h < 17:
+        return "work"
+    elif 17 <= h < 21:
+        return "evening_commute"
+    return "other"
+
+cdr["phase"] = cdr["hour_val"].apply(label_phase)
+
+# Sample 20 users, find worst jump per phase
+sample_users = cdr["user_id"].unique()[:20]
+sample = cdr[cdr["user_id"].isin(sample_users)].copy()
+
+phase_worst = {"home_night": 0, "morning_commute": 0,
+               "work": 0, "evening_commute": 0}
+
+worst_rows = []
+
+for uid, grp in sample.groupby("user_id"):
+    grp = grp.sort_values("timestamp").reset_index(drop=True)
+    for i in range(len(grp) - 1):
+        d = hav(grp.at[i,  "tower_lat"], grp.at[i,  "tower_lon"],
+                grp.at[i+1,"tower_lat"], grp.at[i+1,"tower_lon"])
+        phase = grp.at[i, "phase"]
+        if d > phase_worst.get(phase, 0):
+            phase_worst[phase] = d
+            worst_rows.append({
+                "user_id": uid,
+                "phase": phase,
+                "dist_km": round(d, 2),
+                "from_lat": grp.at[i,   "tower_lat"],
+                "from_lon": grp.at[i,   "tower_lon"],
+                "to_lat":   grp.at[i+1, "tower_lat"],
+                "to_lon":   grp.at[i+1, "tower_lon"],
+                "home_ward": grp.at[i, "home_ward"],
+                "work_ward": grp.at[i, "work_ward"],
+            })
+
+print("Worst consecutive jump per phase:")
+print("-" * 55)
+for phase, worst in phase_worst.items():
+    print(f"  {phase:<22}  {worst:.2f} km")
+
+print("\nTop 5 worst individual jumps:")
+print("-" * 55)
+worst_df = pd.DataFrame(worst_rows).sort_values("dist_km", ascending=False).head(5)
+for _, r in worst_df.iterrows():
+    print(f"  {r['phase']:<22} {r['dist_km']:>6.2f} km  "
+          f"home={r['home_ward']} work={r['work_ward']}")
+
+print("\nDone.")

@@ -1,0 +1,128 @@
+{
+  "age_bracket": {
+    "tvd": 0.4166,
+    "srmse": 0.8626,
+    "predicted_distribution": {
+      "15-24": 0.5396,
+      "45-59": 0.3255,
+      "60+": 0.1023,
+      "25-44": 0.0326
+    },
+    "survey_distribution": {
+      "15-24": 0.227,
+      "25-44": 0.442,
+      "45-59": 0.222,
+      "60+": 0.11
+    }
+  },
+  "employment": {
+    "tvd": 0.1767,
+    "srmse": 0.5949,
+    "predicted_distribution": {
+      "employed": 0.4138,
+      "student": 0.2449,
+      "homemaker": 0.1565,
+      "retired": 0.1019,
+      "unemployed": 0.0829
+    },
+    "survey_distribution": {
+      "employed": 0.569,
+      "homemaker": 0.178,
+      "student": 0.125,
+      "retired": 0.083,
+      "unemployed": 0.045
+    }
+  },
+  "income_class": {
+    "tvd": 0.6078,
+    "srmse": 1.8267,
+    "predicted_distribution": {
+      "high": 0.8128,
+      "low": 0.1609,
+      "mid": 0.0263
+    },
+    "survey_distribution": {
+      "low": 0.391,
+      "mid": 0.404,
+      "high": 0.205
+    }
+  },
+  "vehicle_owned": {
+    "tvd": 0.4427,
+    "srmse": 1.4935,
+    "predicted_distribution": {
+      "car": 0.4682,
+      "2w": 0.2652,
+      "both": 0.1895,
+      "none": 0.0772
+    },
+    "survey_distribution": {
+      "none": 0.502,
+      "2w": 0.283,
+      "car": 0.131,
+      "both": 0.084
+    }
+  },
+  "hh_size": {
+    "note": "No survey marginal available for comparison",
+    "predicted_distribution": {
+      "1": 0.2566281886224278,
+      "7": 0.19161193183058023,
+      "2": 0.17476596766098587,
+      "6": 0.1627206668557837,
+      "5": 0.10814585288148908,
+      "3": 0.0870120234796081,
+      "4": 0.01911536866912519
+    }
+  },
+  "hh_income": {
+    "tvd": 0.6078,
+    "srmse": 1.8267,
+    "predicted_distribution": {
+      "high": 0.8128,
+      "low": 0.1609,
+      "mid": 0.0263
+    },
+    "survey_distribution": {
+      "low": 0.391,
+      "mid": 0.404,
+      "high": 0.205
+    }
+  },
+  "ood_summary": {
+    "n_ood": 2311,
+    "n_total": 91654,
+    "pct_ood": 0.0252,
+    "threshold": 0.05
+  },
+  "age_bracket_confidence": {
+    "mean": 0.4463,
+    "median": 0.4325,
+    "pct_low": 0.3085
+  },
+  "employment_confidence": {
+    "mean": 0.385,
+    "median": 0.4484,
+    "pct_low": 0.4839
+  },
+  "income_class_confidence": {
+    "mean": 0.6847,
+    "median": 0.6987,
+    "pct_low": 0.0335
+  },
+  "vehicle_owned_confidence": {
+    "mean": 0.4101,
+    "median": 0.4024,
+    "pct_low": 0.4851
+  },
+  "hh_size_confidence": {
+    "mean": 0.2574,
+    "median": 0.2377,
+    "pct_low": 0.952
+  },
+  "hh_income_confidence": {
+    "mean": 0.6847,
+    "median": 0.6987,
+    "pct_low": 0.0335
+  }
+}
